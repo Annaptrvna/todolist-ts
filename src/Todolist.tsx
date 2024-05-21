@@ -12,14 +12,17 @@ export type TaskPropsType = {
 }
 export const Todolist = ({title, tasks}:TodolistPropsType) => {
 
-    const tasksElements: Array<JSX.Element> = tasks.map(task=>{
+    const tasksElements: Array<JSX.Element> | JSX.Element =
+
+        tasks.length > 0 ? tasks.map(task=>{
         return (
             <li key={task.id}>
                 <input type="checkbox" checked={task.isDone}/>
                 <span>{task.title}</span>
             </li>
         )
-    })
+    }) :
+            <span>No tasks to complete</span>
 
     return (
             <div>
