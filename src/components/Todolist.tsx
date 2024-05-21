@@ -1,4 +1,5 @@
 import React, {JSX} from "react";
+import {Button} from "./Button";
 
 type TodolistPropsType = {
     title: string
@@ -35,9 +36,9 @@ export const Todolist = ({title, tasks}:TodolistPropsType) => {
                     {tasksElements}
                 </ul>
                 <div>
-                    <button>All</button>
-                    <button>Active</button>
-                    <button>Completed</button>
+                    <Button name={"All"}/>
+                    <Button name={"Active"}/>
+                    <Button name={"Completed"}/>
                 </div>
             </div>
     )

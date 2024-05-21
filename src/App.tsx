@@ -1,6 +1,6 @@
 import React from 'react';
 import './App.css';
-import {TaskPropsType, Todolist} from "./Todolist";
+import {TaskPropsType, Todolist} from "./components/Todolist";
 
 function App() {
     const tasks: Array<TaskPropsType> = [
