@@ -1,12 +1,13 @@
-import React from "react";
+import React, {MouseEventHandler} from "react";
 
 type ButtonPropsType = {
     name:string
+    onclickHandler ?: () => void
 }
-export const Button = ({name}:ButtonPropsType) => {
+export const Button = ({name, onclickHandler}:ButtonPropsType) => {
     return (
         <>
-            <button>{name}</button>
+            <button onClick={onclickHandler}>{name}</button>
         </>
 
 
