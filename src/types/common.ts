@@ -1,5 +1,5 @@
 export type TaskPropsType = {
-    id: number,
+    id: string,
     isDone: boolean,
     title: string
 }
