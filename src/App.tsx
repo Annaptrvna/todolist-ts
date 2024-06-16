@@ -50,6 +50,7 @@ function App() {
             <Todolist
                 title= {todolistTitle}
                 tasks={filteredTasks}
+                filter={filterValue}
                 removeTask={removeTask}
                 changeFilterValue={changeFilterValue}
                 addTask={addTask}
