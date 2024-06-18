@@ -1,15 +1,18 @@
 import React, {ChangeEvent, KeyboardEvent, JSX, useRef, useState} from "react";
 import {Button} from "./Button";
-import {FilterValuesType, TaskPropsType} from "../types/common";
+import {FilterValuesType, TaskType} from "../types/common";
+import {useAutoAnimate} from "@formkit/auto-animate/react";
+
 
 type TodolistPropsType = {
     title: string
-    tasks: Array<TaskPropsType>
+    tasks: TaskType[]
     removeTask: (taskId: string) => void
-    changeFilterValue: (value: FilterValuesType) =>  void
+    changeFilterValue: (todolistId: string, filter: FilterValuesType) =>  void
     addTask: (title: string) => void
     changeTaskStatus: (taskId: string, isDone: boolean) => void
     filter: FilterValuesType
+    todolistId: string
 }
 
 
@@ -19,16 +22,15 @@ export const Todolist = ({
                              removeTask,
                              changeFilterValue,
                              addTask,
-                             changeTaskStatus, ...rest
+                             changeTaskStatus,
+                             todolistId,
+                             ...rest
                                 }:TodolistPropsType) => {
 
     const tasksElements: Array<JSX.Element> | JSX.Element =
-
         tasks.length > 0 ? tasks.map(task=>{
             const onclickRemoveTaskHandler = () => removeTask(task.id)
-            const onChangeTaskStatus = (taskId: string, isDone: boolean) => {
-                changeTaskStatus(taskId, isDone)
-            }
+            const onChangeTaskStatus = (taskId: string, isDone: boolean) => changeTaskStatus(taskId, isDone)
         return (
             <li key={task.id}>
                 <input onChange={(e)=>onChangeTaskStatus(task.id, e.currentTarget.checked)} type="checkbox" checked={task.isDone}/>
@@ -38,6 +40,8 @@ export const Todolist = ({
         )
     }) :
             <span>No tasks to complete</span>
+
+
     const [titleValue, setTitleValue] = useState("")
     const [error, setError] = useState<string | null>(null)
     const onchangeTitleHandler  = (e: ChangeEvent<HTMLInputElement>) => {
@@ -54,14 +58,14 @@ export const Todolist = ({
     const onkeydownAddTaskHandler = (e:KeyboardEvent<HTMLInputElement>) => e.key === "Enter" && addTaskHandler()
 
 
-    const onclickAllTasksHandler = () => changeFilterValue("all")
-    const onclickCompletedTasksHandler = () => changeFilterValue("completed")
-    const onclickActiveTasksHandler = () => changeFilterValue("active")
+    const onclickAllTasksHandler = () => changeFilterValue(todolistId, "all")
+    const onclickCompletedTasksHandler = () => changeFilterValue(todolistId, "completed")
+    const onclickActiveTasksHandler = () => changeFilterValue(todolistId, "active")
 
     const disabledHandler =  !titleValue || titleValue.length >= 20
     const taskTitleLengthNotification = titleValue.length > 20 && <div>Task title length should be below twenty letters </div>
     const taskEmptyTitleNotification = error && <div className={"error-message"}>Title is required</div>
-
+    const [listRef] = useAutoAnimate<HTMLUListElement>()
     return (
             <div>
                 <h3>{title}</h3>
@@ -74,9 +78,9 @@ export const Todolist = ({
                     />
                     <Button name={"+"} onclickHandler={addTaskHandler} disabled={disabledHandler}/>
                     {taskTitleLengthNotification}
-                    {taskEmptyTitleNotification}
+                    {taskEmptyTitleNotification}:x:
                 </div>
-                <ul>
+                <ul ref={listRef}>
                     {tasksElements}
                 </ul>
                 <div>
