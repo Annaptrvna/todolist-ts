@@ -7,12 +7,13 @@ import {useAutoAnimate} from "@formkit/auto-animate/react";
 type TodolistPropsType = {
     title: string
     tasks: TaskType[]
-    removeTask: (taskId: string) => void
+    removeTask: (todolistId: string, taskId: string) => void
     changeFilterValue: (todolistId: string, filter: FilterValuesType) =>  void
-    addTask: (title: string) => void
-    changeTaskStatus: (taskId: string, isDone: boolean) => void
+    addTask: (todolistId: string, title: string) => void
+    changeTaskStatus: (todolistId: string, taskId: string, isDone: boolean) => void
     filter: FilterValuesType
     todolistId: string
+    removeTodolist: (todolistId: string) => void
 }
 
 
@@ -24,13 +25,21 @@ export const Todolist = ({
                              addTask,
                              changeTaskStatus,
                              todolistId,
+                             removeTodolist,
                              ...rest
                                 }:TodolistPropsType) => {
 
+    let tasksForTodolist = tasks
+    if(rest.filter === "completed") {
+        tasksForTodolist = tasksForTodolist.filter(task => task.isDone)
+    } if(rest.filter === "active") {
+        tasksForTodolist = tasksForTodolist.filter(task => !task.isDone)
+    }
+
     const tasksElements: Array<JSX.Element> | JSX.Element =
-        tasks.length > 0 ? tasks.map(task=>{
-            const onclickRemoveTaskHandler = () => removeTask(task.id)
-            const onChangeTaskStatus = (taskId: string, isDone: boolean) => changeTaskStatus(taskId, isDone)
+        tasks.length > 0 ? tasksForTodolist.map(task=>{
+            const onclickRemoveTaskHandler = () => removeTask(todolistId,task.id)
+            const onChangeTaskStatus = ( taskId: string, isDone: boolean) => changeTaskStatus(todolistId, taskId, isDone)
         return (
             <li key={task.id}>
                 <input onChange={(e)=>onChangeTaskStatus(task.id, e.currentTarget.checked)} type="checkbox" checked={task.isDone}/>
@@ -51,7 +60,7 @@ export const Todolist = ({
 
     const addTaskHandler = () => {
         if(titleValue.trim()){
-            addTask(titleValue)
+            addTask(todolistId, titleValue)
             setTitleValue("")
         } else {setError("Task title should not be empty")}
     }
@@ -61,13 +70,16 @@ export const Todolist = ({
     const onclickAllTasksHandler = () => changeFilterValue(todolistId, "all")
     const onclickCompletedTasksHandler = () => changeFilterValue(todolistId, "completed")
     const onclickActiveTasksHandler = () => changeFilterValue(todolistId, "active")
+    const onClickRemoveTodolistHandler = () => removeTodolist(todolistId)
 
     const disabledHandler =  !titleValue || titleValue.length >= 20
     const taskTitleLengthNotification = titleValue.length > 20 && <div>Task title length should be below twenty letters </div>
     const taskEmptyTitleNotification = error && <div className={"error-message"}>Title is required</div>
     const [listRef] = useAutoAnimate<HTMLUListElement>()
+
     return (
             <div>
+                <button onClick={onClickRemoveTodolistHandler}>X</button>
                 <h3>{title}</h3>
                 <div>
                     <input
