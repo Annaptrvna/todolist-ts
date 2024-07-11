@@ -1,6 +1,6 @@
 import React, {useState} from 'react';
 import './App.css';
-import { Todolist} from "./components/Todolist";
+import {AddItemForm, Todolist} from "./components/Todolist";
 import {FilterValuesType, TasksType, TodolistType} from "./types/common";
 import {v1} from "uuid";
 
@@ -23,12 +23,27 @@ function App() {
         setTasks({...tasks, [todolistId]: [...tasks[todolistId], newTask]})
     }
 
+    const addTodolist = (title: string)=>{
+        const newTodolistId = v1()
+        const newTodolist: TodolistType = {id:newTodolistId, title, filter: "all"}
+        setTodolists([...todolists, newTodolist ])
+        setTasks({...tasks, [newTodolistId]:[]})
+    }
+
     const changeFilterValue = (todolistId: string, filter: FilterValuesType) => {
         setTodolists( todolists.map(tl => tl.id === todolistId ? {...tl, filter:filter} : tl))
     }
 
     const changeTaskStatus = (todolistId: string, taskId: string, isDone: boolean) => {
         setTasks({...tasks, [todolistId]: tasks[todolistId].map((t)=>t.id===taskId?{...t, isDone: isDone} : t)})
+    }
+
+    const changeTaskTitle = (todolistId: string, taskId: string, title: string) => {
+        setTasks({...tasks, [todolistId]: tasks[todolistId].map((t)=>t.id===taskId?{...t, title: title} : t)})
+    }
+
+    const changeTodolistTitle = (todolistId: string, title: string) => {
+        setTodolists(todolists.map(td => td.id === todolistId? {...td, title}:td))
     }
 
 
@@ -55,6 +70,7 @@ function App() {
    )
     return (
         <div className="App">
+            <AddItemForm onClick={addTodolist}/>
             {todolists.map(tl=>{
                 // let tasksForTodolist = tasks[tl.id]
                 // if(tl.filter === "completed") {
@@ -73,6 +89,8 @@ function App() {
                 changeFilterValue={changeFilterValue}
                 addTask={addTask}
                 changeTaskStatus={changeTaskStatus}
+                changeTaskTitle={changeTaskTitle}
+                changeTodolistTitle={changeTodolistTitle}
                 />
                 )})}
         </div>
