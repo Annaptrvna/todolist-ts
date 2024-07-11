@@ -50,7 +50,7 @@ export const Todolist = ({
         return (
             <li key={task.id}>
                 <input onChange={(e)=>onChangeTaskStatusHandler(task.id, e.currentTarget.checked)} type="checkbox" checked={task.isDone}/>
-                <EditableSpan title={task.title} className={task.isDone ? "task-done": ""} editItemTitle={(title)=>onChangeTaskTitleHandler(task.id, title)}/>
+                <EditableSpan oldTitle={task.title} className={task.isDone ? "task-done": ""} editItemTitle={(title)=>onChangeTaskTitleHandler(task.id, title)}/>
                 <Button name="x" onclickHandler={()=>onclickRemoveTaskHandler(task.id)}/>
             </li>
         )
@@ -75,7 +75,7 @@ export const Todolist = ({
     return (
             <div>
                 <button onClick={onClickRemoveTodolistHandler}>X</button>
-                <EditableSpan title={title} editItemTitle={onClickChangeTodolistTitleHandler}/>
+                <EditableSpan oldTitle={title} editItemTitle={onClickChangeTodolistTitleHandler}/>
                 {/*<h3>{title}</h3>*/}
                 <AddItemForm onClick={addTaskHandler}/>
                 <ul ref={listRef}>
@@ -135,25 +135,25 @@ export const AddItemForm = ({onClick} : AddItemFormPropsType) => {
 //-----------------------------------------------------------------------------
 
 type EditableSpanPropsType = {
-    title: string
+    oldTitle: string
     className?: string
     editItemTitle: (title: string) => void
 
 }
 
-const EditableSpan = ({title, className, editItemTitle} : EditableSpanPropsType) => {
+const EditableSpan = ({oldTitle, className, editItemTitle} : EditableSpanPropsType) => {
     const [editMode, setEditMode] = useState(false)
-    const [spanTitle, setSpanTitle] = useState("")
+    const [newTitle, setNewTitle] = useState("")
     const activateEditMode = () => {
-        setSpanTitle(title)
+        setNewTitle(oldTitle)
         setEditMode(true)
     }
     const activateTaskMode = () => {
         setEditMode(false)
-        editItemTitle(spanTitle)
+        editItemTitle(newTitle)
     }
     const onChangeTitleHandler = (event: ChangeEvent<HTMLInputElement>) => {
-        setSpanTitle(event.currentTarget.value)
+        setNewTitle(event.currentTarget.value)
     }
 
     const onKeyDownHandler = (event: KeyboardEvent)=> {
@@ -164,12 +164,12 @@ const EditableSpan = ({title, className, editItemTitle} : EditableSpanPropsType)
         editMode ? <input
                 className={className}
                 onKeyDown={(e)=>onKeyDownHandler(e)}
-                value={spanTitle} onChange={onChangeTitleHandler}
+                value={newTitle} onChange={onChangeTitleHandler}
                 onBlur={activateTaskMode}
                 type="text"
                 autoFocus/>
             : <span
                 onDoubleClick={activateEditMode}
-                className={className}>{title}</span>
+                className={className}>{newTitle}</span>
     )
 }
