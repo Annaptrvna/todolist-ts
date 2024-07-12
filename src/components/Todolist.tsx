@@ -1,7 +1,12 @@
 import React, {ChangeEvent, KeyboardEvent, JSX, useRef, useState} from "react";
-import {Button} from "./Button";
+import {UniversalButton} from "./Button";
 import {FilterValuesType, TaskType, TodolistType} from "../types/common";
 import {useAutoAnimate} from "@formkit/auto-animate/react";
+import {Checkbox, IconButton, TextField} from "@mui/material";
+import DeleteIcon from '@mui/icons-material/Delete';
+import Button from "@mui/material/Button";
+import {ControlPoint} from "@mui/icons-material";
+
 
 
 type TodolistPropsType = {
@@ -41,7 +46,7 @@ export const Todolist = ({
         tasksForTodolist = tasksForTodolist.filter(task => !task.isDone)
     }
 
-    const onclickRemoveTaskHandler = (taskId: string) => removeTask(todolistId,taskId)
+    const onClickRemoveTaskHandler = (taskId: string) => removeTask(todolistId,taskId)
     const onChangeTaskStatusHandler = ( taskId: string, isDone: boolean) => changeTaskStatus(todolistId, taskId, isDone)
     const onChangeTaskTitleHandler = (taskId: string, title: string) => changeTaskTitle(todolistId, taskId, title)
 
@@ -49,9 +54,9 @@ export const Todolist = ({
         tasks.length > 0 ? tasksForTodolist.map(task=>{
         return (
             <li key={task.id}>
-                <input onChange={(e)=>onChangeTaskStatusHandler(task.id, e.currentTarget.checked)} type="checkbox" checked={task.isDone}/>
+                <Checkbox onChange={(e)=>onChangeTaskStatusHandler(task.id, e.currentTarget.checked)} checked={task.isDone}/>
                 <EditableSpan oldTitle={task.title} className={task.isDone ? "task-done": ""} editItemTitle={(title)=>onChangeTaskTitleHandler(task.id, title)}/>
-                <Button name="x" onclickHandler={()=>onclickRemoveTaskHandler(task.id)}/>
+               <IconButton onClick={()=>onClickRemoveTaskHandler(task.id)}><DeleteIcon/></IconButton>
             </li>
         )
     }) :
@@ -61,9 +66,9 @@ export const Todolist = ({
             addTask(todolistId, title)
     }
 
-    const onclickAllTasksHandler = () => changeFilterValue(todolistId, "all")
-    const onclickCompletedTasksHandler = () => changeFilterValue(todolistId, "completed")
-    const onclickActiveTasksHandler = () => changeFilterValue(todolistId, "active")
+    const onClickAllTasksHandler = () => changeFilterValue(todolistId, "all")
+    const onClickCompletedTasksHandler = () => changeFilterValue(todolistId, "completed")
+    const onClickActiveTasksHandler = () => changeFilterValue(todolistId, "active")
     const onClickRemoveTodolistHandler = () => removeTodolist(todolistId)
 
     const onClickChangeTodolistTitleHandler = (title: string) => {
@@ -74,17 +79,19 @@ export const Todolist = ({
 
     return (
             <div>
-                <button onClick={onClickRemoveTodolistHandler}>X</button>
                 <EditableSpan oldTitle={title} editItemTitle={onClickChangeTodolistTitleHandler}/>
+                <IconButton aria-label="delete" onClick={onClickRemoveTodolistHandler}><DeleteIcon/></IconButton>
                 {/*<h3>{title}</h3>*/}
                 <AddItemForm onClick={addTaskHandler}/>
                 <ul ref={listRef}>
                     {tasksElements}
                 </ul>
                 <div>
-                    <Button onclickHandler={onclickAllTasksHandler} name={"All"} className={rest.filter==="all" ? "active" : ""}/>
-                    <Button onclickHandler={onclickActiveTasksHandler} name={"Active"} className={rest.filter==="active" ? "active" : ""}/>
-                    <Button onclickHandler={onclickCompletedTasksHandler} name={"Completed"} className={rest.filter==="completed" ? "active" : ""}/>
+                    <Button onClick={onClickAllTasksHandler} name={"All"} variant={rest.filter=== "all" ? "contained" : "text"}>All</Button>
+                    <Button onClick={onClickActiveTasksHandler} name={"Active"} variant={rest.filter=== "active" ? "contained" : "text"}>Active</Button>
+                    <Button onClick={onClickCompletedTasksHandler} name={"Completed"} variant={rest.filter=== "completed" ? "contained" : "text"}>Completed</Button>
+                    {/*<UniversalButton variant={"contained"} onclickHandler={onclickActiveTasksHandler} name={"Active"} className={rest.filter==="active" ? "active" : ""}/>*/}
+                    {/*<UniversalButton variant={"contained"} onclickHandler={onclickCompletedTasksHandler} name={"Completed"} className={rest.filter==="completed" ? "active" : ""}/>*/}
                 </div>
             </div>
     )
@@ -100,7 +107,7 @@ export const AddItemForm = ({onClick} : AddItemFormPropsType) => {
 
     const [error, setError] = useState<string | null>(null)
     const [title, setTitle] = useState("")
-    const onChangeTitleHandler  = (e: ChangeEvent<HTMLInputElement>) => {
+    const onChangeTitleHandler  = (e: ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
         error && setError(null)
         setTitle(e.currentTarget.value)
     }
@@ -119,13 +126,15 @@ export const AddItemForm = ({onClick} : AddItemFormPropsType) => {
 
     return (
         <div>
-            <input
+            <TextField
                 value={title}
                 onChange={(e)=>onChangeTitleHandler(e)}
                 onKeyDown={onKeyDownAddTaskHandler}
-                className={error? "error" : ""}
+                label={"Type value"}
+                error={!!error}
+                helperText={error}
             />
-            <Button name={"+"} onclickHandler={addItemHandler} disabled={disabledHandler}/>
+            <IconButton  name={"+"} onClick={addItemHandler} disabled={disabledHandler}><ControlPoint/></IconButton>
             {taskTitleLengthNotification}
             {taskEmptyTitleNotification}
         </div>
@@ -170,6 +179,6 @@ const EditableSpan = ({oldTitle, className, editItemTitle} : EditableSpanPropsTy
                 autoFocus/>
             : <span
                 onDoubleClick={activateEditMode}
-                className={className}>{newTitle}</span>
+                className={className}>{oldTitle}</span>
     )
 }
