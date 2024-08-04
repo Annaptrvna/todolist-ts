@@ -1,11 +1,17 @@
 import React, {ChangeEvent, KeyboardEvent, JSX, useRef, useState} from "react";
-import {UniversalButton} from "./Button";
+import {UniversalButton} from "./UniversalButton";
 import {FilterValuesType, TaskType, TodolistType} from "../types/common";
 import {useAutoAnimate} from "@formkit/auto-animate/react";
-import {Checkbox, IconButton, TextField} from "@mui/material";
+import Checkbox from "@mui/material/Checkbox";
+import TextField from "@mui/material/TextField";
+import IconButton from "@mui/material/IconButton";
 import DeleteIcon from '@mui/icons-material/Delete';
 import Button from "@mui/material/Button";
-import {ControlPoint} from "@mui/icons-material";
+import List from '@mui/material/List';
+import ListItem from '@mui/material/ListItem';
+import {AddBox, ControlPoint} from "@mui/icons-material";
+import Box from "@mui/material/Box";
+import {getListItemsSx} from "./Todolist.styles";
 
 
 
@@ -53,11 +59,15 @@ export const Todolist = ({
     const tasksElements: Array<JSX.Element> | JSX.Element =
         tasks.length > 0 ? tasksForTodolist.map(task=>{
         return (
-            <li key={task.id}>
+            <ListItem sx={getListItemsSx(task.isDone)}>
+             {/*<li key={task.id}>*/}
                 <Checkbox onChange={(e)=>onChangeTaskStatusHandler(task.id, e.currentTarget.checked)} checked={task.isDone}/>
+                {/*<input type="checkbox" checked={task.isDone} onChange={(e)=>onChangeTaskStatusHandler(task.id, e.currentTarget.checked)}/>*/}
                 <EditableSpan oldTitle={task.title} className={task.isDone ? "task-done": ""} editItemTitle={(title)=>onChangeTaskTitleHandler(task.id, title)}/>
                <IconButton onClick={()=>onClickRemoveTaskHandler(task.id)}><DeleteIcon/></IconButton>
-            </li>
+               {/* <button onClick={()=>onClickRemoveTaskHandler(task.id)}>Delete</button>*/}
+            {/* </li>*/}
+            </ListItem>
         )
     }) :
             <span>No tasks to complete</span>
@@ -79,20 +89,28 @@ export const Todolist = ({
 
     return (
             <div>
-                <EditableSpan oldTitle={title} editItemTitle={onClickChangeTodolistTitleHandler}/>
-                <IconButton aria-label="delete" onClick={onClickRemoveTodolistHandler}><DeleteIcon/></IconButton>
-                {/*<h3>{title}</h3>*/}
+                <div style={{display: "flex"}}>
+                    <h3><EditableSpan oldTitle={title} editItemTitle={onClickChangeTodolistTitleHandler}/></h3>
+                    <IconButton aria-label="delete" onClick={onClickRemoveTodolistHandler}><DeleteIcon/></IconButton>
+                    {/*<h3>{title}</h3>*/}
+                </div>
                 <AddItemForm onClick={addTaskHandler}/>
-                <ul ref={listRef}>
+                <List>
                     {tasksElements}
-                </ul>
-                <div>
+                </List>
+                {/*<ul ref={listRef}>*/}
+                {/*</ul>*/}
+
+                <Box sx={{display: "flex", justifyContent: "space-between"}}>
                     <Button onClick={onClickAllTasksHandler} name={"All"} variant={rest.filter=== "all" ? "contained" : "text"}>All</Button>
                     <Button onClick={onClickActiveTasksHandler} name={"Active"} variant={rest.filter=== "active" ? "contained" : "text"}>Active</Button>
                     <Button onClick={onClickCompletedTasksHandler} name={"Completed"} variant={rest.filter=== "completed" ? "contained" : "text"}>Completed</Button>
+                </Box>
+                {/*<div>*/}
+                    {/*<UniversalButton variant={"contained"} onclickHandler={onclickAllTasksHandler} name={"All"} className={rest.filter==="all" ? "active" : ""}/>*/}
                     {/*<UniversalButton variant={"contained"} onclickHandler={onclickActiveTasksHandler} name={"Active"} className={rest.filter==="active" ? "active" : ""}/>*/}
                     {/*<UniversalButton variant={"contained"} onclickHandler={onclickCompletedTasksHandler} name={"Completed"} className={rest.filter==="completed" ? "active" : ""}/>*/}
-                </div>
+                {/*</div>*/}
             </div>
     )
 }
@@ -122,21 +140,34 @@ export const AddItemForm = ({onClick} : AddItemFormPropsType) => {
 
     const disabledHandler =  !title || title.length >= 20
     const taskTitleLengthNotification = title.length > 20 && <div>Task title length should be below twenty letters </div>
-    const taskEmptyTitleNotification = error && <div className={"error-message"}>Title is required</div>
-
+    const taskEmptyTitleNotification = error && <div className={"error-message"}>{error}</div>
+    // const styledButton = ({
+    //     backgroundColor: "blue",
+    //     border: "none",
+    //     color: "white",
+    //     textAlign: "center",
+    //     display: "inline-block",
+    //     fontSize: "16px",
+    //     margin: "4px 2px",
+    //     cursor: "pointer",
+    //     borderRadius: "12px",
+    //     transition: "background-color 0.3s ease",
+    // })
     return (
         <div>
             <TextField
+                size={"small"}
                 value={title}
                 onChange={(e)=>onChangeTitleHandler(e)}
                 onKeyDown={onKeyDownAddTaskHandler}
-                label={"Type value"}
-                error={!!error}
+                label={"Enter title"}
                 helperText={error}
+                error={!!error}
             />
-            <IconButton  name={"+"} onClick={addItemHandler} disabled={disabledHandler}><ControlPoint/></IconButton>
+            <IconButton color={"primary"} onClick={addItemHandler} disabled={disabledHandler}><AddBox/></IconButton>
+            {/*<UniversalButton name={"+"} disabled={disabledHandler} onClick={addItemHandler}/>*/}
             {taskTitleLengthNotification}
-            {taskEmptyTitleNotification}
+            {/*{taskEmptyTitleNotification}*/}
         </div>
     )
 }
@@ -170,13 +201,26 @@ const EditableSpan = ({oldTitle, className, editItemTitle} : EditableSpanPropsTy
     }
 
     return (
-        editMode ? <input
+        editMode ?
+            <TextField
+                size={"small"}
                 className={className}
                 onKeyDown={(e)=>onKeyDownHandler(e)}
-                value={newTitle} onChange={onChangeTitleHandler}
+                value={newTitle}
+                onChange={onChangeTitleHandler}
                 onBlur={activateTaskMode}
                 type="text"
-                autoFocus/>
+                autoFocus
+            />
+
+            // <input
+            //     className={className}
+            //     onKeyDown={(e)=>onKeyDownHandler(e)}
+            //     value={newTitle} onChange={onChangeTitleHandler}
+            //     onBlur={activateTaskMode}
+            //     type="text"
+            //     autoFocus
+            //     />
             : <span
                 onDoubleClick={activateEditMode}
                 className={className}>{oldTitle}</span>
